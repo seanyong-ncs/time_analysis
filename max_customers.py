@@ -26,27 +26,6 @@ def prepreocess_df(df):
    
     return df
 
-# Occupants per time second check method Start
-
-def is_present(i, row):
-    return i >= row[1][1] and i <= row[1][2]
-
-def occupants_in_second(df, i):
-    occupants = 0
-    for row in df.iterrows():
-        occupants += 1 if is_present(i, row) else 0
-    return occupants
-    
-def generate_time_list(df):
-    max_time_step = df.loc[df["ls_timeStep"].idxmax()]["ls_timeStep"]
-
-    with Pool(processes=8) as pool:
-
-        results = pool.map(partial(occupants_in_second, df), range(max_time_step))
-    
-    print(results)
-
-# Occupants per time second check method End
 def generate_time_list_slice(df):
     max_time_step = df.loc[df["ls_timeStep"].idxmax()]["ls_timeStep"]
     results = np.zeros(max_time_step)
