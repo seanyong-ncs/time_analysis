@@ -58,7 +58,7 @@ This utility expects an input file of a `.csv` format that contains the followin
 
   
 
-`python max_occupancy.py -i [input_file_path] -g [granularity] [-a] [-v] `
+`python main.py -i [input_file_path] -g [granularity] [-a] [-v] `
 
   
 
