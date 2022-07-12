@@ -7,7 +7,6 @@ import numpy as np
 MINUTES = 60
 SECONDS = 60
 
-
 def initial_time(df):
     return df["firstSeen"].iloc[0].replace(hour=0, minute=0, second=0, microsecond=0)
 
@@ -47,7 +46,7 @@ def generate_time_list(df):
 
 def max_occupants_per_window(time_list, initial_dt, window):
 
-    results = pd.DataFrame(columns=["timeStart", "timeEnd", "maxOccupants", "occuranceTime"])
+    results = pd.DataFrame(columns=["timeStart", "timeEnd", "maxOccupants", "firstOccuranceTime"])
 
     for i in range(int(time_list.size/window)):
         # Define slice time steps and indices
@@ -68,7 +67,7 @@ def max_occupants_per_window(time_list, initial_dt, window):
         time_of_occurance = initial_dt + timedelta(seconds=max_occupants_ts[0].item()) if max_occupants > 0 else np.NaN
         
         # Format a dataframe with one row to append to the end of the temp results frame
-        newRow = {"timeStart": [start_dt], "timeEnd": [end_dt], "maxOccupants": [max_occupants], "occuranceTime": [time_of_occurance]}
+        newRow = {"timeStart": [start_dt], "timeEnd": [end_dt], "maxOccupants": [max_occupants], "firstOccuranceTime": [time_of_occurance]}
         results = pd.concat([results, pd.DataFrame(newRow)], ignore_index=True)
 
     
@@ -90,6 +89,7 @@ def main():
     
     args = parser.parse_args()
 
+    if isDirectory = os.
     raw_df = pd.read_csv(args.input_file)
     
     df = prepreocess_df(raw_df, args.line_cross)
@@ -97,7 +97,7 @@ def main():
     time_list = generate_time_list(df)
     results = generate_analysis(time_list, raw_df, args.granularity)
 
-    output_file = args.output_file if args.output_file != "" else args.input_file.split(".")[0] + "_output.csv"
+    output_file = args.output_file if args.output_file != "" else args.input_file.split(".")[0] + "_max_occupancy.csv"
     results.to_csv(output_file ,index=False)
     
     print(f"Results saved to {output_file}")
