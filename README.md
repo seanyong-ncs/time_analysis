@@ -1,4 +1,4 @@
-# Max Occupancy Analysis
+# Occupancy Analysis v1.0
 
 NCS NIVA Internal utility to generate a report showing the max number of people occupying an area and its first occuance time within defined periods given an **input time** and an **output time** 
 
