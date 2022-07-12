@@ -24,7 +24,7 @@ This utility expects an input file of a `.csv` format that contains the followin
 
 ### Commands
 
-`python max_customers.py -i [input_file_path] -o [output_file_path] -g [granularity] [-a] [-v] `
+`python max_occupancy.py -i [input_file_path] -o [output_file_path] -g [granularity] [-a] [-v] `
 
 - `-i, --input_file` - The input file path - **REQUIRED**
 - `-o, --output_file`  - The output file path, defaults to `input_file_name`_output.csv -  *optional*
