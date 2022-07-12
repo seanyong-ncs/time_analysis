@@ -2,12 +2,9 @@ import argparse
 from datetime import timedelta
 import pandas as pd
 import numpy as np
+from TSConverter import TimeStepConverter
 
-MINUTES = 60
-SECONDS = 60
-
-def initial_time(df):
-    return df["firstSeen"].iloc[0].replace(hour=0, minute=0, second=0, microsecond=0)
+tsc = TimeStepConverter()
 
 # Transform data frame into relative time step and drop unnecessary rows
 def prepreocess_df(df, count_all):
@@ -22,11 +19,9 @@ def prepreocess_df(df, count_all):
     # Sort by firstSeen
     df.sort_values(by="firstSeen", ascending=True, inplace=True)
     
-    # Convert dateTime to timedelta centered around 12am as start
-    initial_dt = initial_time(df)
-
-    df["fs_timeStep"] = (df["firstSeen"] - initial_dt).dt.total_seconds().astype(int)
-    df["ls_timeStep"] = (df["lastSeen"] - initial_dt).dt.total_seconds().astype(int)
+    # Replace dateTime with relative timeStep
+    df["fs_timeStep"] = tsc.dateTime_to_timeStep(df["firstSeen"])
+    df["ls_timeStep"] = tsc.dateTime_to_timeStep(df["lastSeen"])
 
     df = df.drop(columns=["firstSeen", "lastSeen", "dwellTime", "engagementTime", "crossLine"])
    
@@ -42,9 +37,11 @@ def generate_time_list(df):
         rowList[row[1][1]:row[1][2]] = 1
         results = rowList + results
 
-    return results
+    return results.astype(int)
 
-def max_occupants_per_window(time_list, initial_dt, window):
+def generate_window_analysis(time_list, granularity):
+
+    window = granularity * 60
 
     results = pd.DataFrame(columns=["timeStart", "timeEnd", "maxOccupants", "firstOccuranceTime"])
 
@@ -62,9 +59,9 @@ def max_occupants_per_window(time_list, initial_dt, window):
             max_occupants_ts = max_occupants_ts[(max_occupants_ts > ts_start)]
 
         # Convert relative timestep to dateTime object
-        start_dt = initial_dt + timedelta(seconds=i*window)
-        end_dt = initial_dt + timedelta(seconds=ts_stop)
-        time_of_occurance = initial_dt + timedelta(seconds=max_occupants_ts[0].item()) if max_occupants > 0 else np.NaN
+        start_dt = tsc.timeStep_to_dateTime(ts_start)
+        end_dt = tsc.timeStep_to_dateTime(ts_stop)
+        time_of_occurance = tsc.timeStep_to_dateTime(max_occupants_ts[0].item()) if max_occupants > 0 else np.NaN
         
         # Format a dataframe with one row to append to the end of the temp results frame
         newRow = {"timeStart": [start_dt], "timeEnd": [end_dt], "maxOccupants": [max_occupants], "firstOccuranceTime": [time_of_occurance]}
@@ -73,16 +70,38 @@ def max_occupants_per_window(time_list, initial_dt, window):
     
     return results
 
+def generate_occupancy_run_list(time_list):
+    last_occupancy = time_list[0]
+    run_length = 1
 
-def generate_analysis(time_list, raw_df, granularity):
-    initial_dt = initial_time(raw_df)
-    return max_occupants_per_window(time_list, initial_dt, granularity*SECONDS)
+    run_list = []
+    for current_occupancy in time_list[1:]:
+        if current_occupancy == last_occupancy:
+            run_length += 1
+        else:
+            run_list.append((last_occupancy, run_length))
+            run_length = 1
+            last_occupancy = current_occupancy
+    
+    return run_list
+
+def generate_occupancy_analysis(occupancy_run_list):
+    results = pd.DataFrame(columns=["occupants", "timeStart", "timeEnd", "duration"])
+    run_index = 0
+
+    for run in occupancy_run_list:
+        start_dt = tsc.timeStep_to_dateTime(run_index)
+        end_dt = tsc.timeStep_to_dateTime(run_index + run[1] - 1)
+        run_index += run[1]
+        newRow = {"occupants": [run[0]], "timeStart": [start_dt], "timeEnd": [end_dt], "duration": [run[1]]}
+        results = pd.concat([results, pd.DataFrame(newRow)], ignore_index=True)
+
+    return results
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input_file", help="Input file path", required=True)
-    parser.add_argument("-o", "--output_file", help="Output file path", default="")
     parser.add_argument("-g", "--granularity", help="Set the time slice window in minutes", type=int, default=60)
     parser.add_argument("-a", '--count_all', action='store_true')
     parser.add_argument("-v", "--verbose", help="Verbosely list operations", action="store_true")
@@ -90,19 +109,31 @@ def main():
     args = parser.parse_args()
 
     raw_df = pd.read_csv(args.input_file)
+
+    tsc.set_initial_dt(raw_df)
     
     df = prepreocess_df(raw_df, args.count_all)
 
     time_list = generate_time_list(df)
-    results = generate_analysis(time_list, raw_df, args.granularity)
 
-    output_file = args.output_file if args.output_file != "" else args.input_file.split(".")[0] + "_max_occupancy.csv"
-    results.to_csv(output_file ,index=False)
-    
-    print(f"Results saved to {output_file}")
+    count_all_flag = "_count_all" if args.count_all else ""
+
+    occupancy_run_list = generate_occupancy_run_list(time_list)
+    occupancy_time_results = generate_occupancy_analysis(occupancy_run_list)
+    occupancy_time_output_file = args.input_file.split(".")[0] + f"_occupancy_time{count_all_flag}.csv"
+    occupancy_time_results.to_csv(occupancy_time_output_file ,index=False)
+
+    max_occupancy_results = generate_window_analysis(time_list, args.granularity)
+    max_occupancy_output_file = args.input_file.split(".")[0] + f"_max_occupancy{count_all_flag}.csv"
+    max_occupancy_results.to_csv(max_occupancy_output_file ,index=False)
+
+
+    print(f"Occupancy-Time Results saved to {occupancy_time_output_file}")
+    print(f"Max Occupancy Results saved to {max_occupancy_output_file}")
 
     if (args.verbose):
-        print(results)
+        print(occupancy_time_results)
+        print(max_occupancy_results)
     
 
 if __name__ == "__main__":
