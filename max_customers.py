@@ -11,9 +11,10 @@ def initial_time(df):
     return df["firstSeen"].iloc[0].replace(hour=0, minute=0, second=0, microsecond=0)
 
 # Transform data frame into relative time step and drop unnecessary rows
-def prepreocess_df(df, filter_line_cross):
-    # Drop rows if filter_line_cross
-    df.drop(df.loc[df['crossLine']==bool(filter_line_cross)].index, inplace=True)
+def prepreocess_df(df, count_all):
+    # Drop rows if count_all
+    if not count_all:
+        df.drop(df.loc[df['crossLine']==False].index, inplace=True)
 
     # Convert string to dateTime object
     df["firstSeen"] = pd.to_datetime(df["firstSeen"])
@@ -84,15 +85,14 @@ def main():
     parser.add_argument("-i", "--input_file", help="Input file path", required=True)
     parser.add_argument("-o", "--output_file", help="Output file path", default="")
     parser.add_argument("-g", "--granularity", help="Set the time slice window in seconds", type=int, default=60)
-    parser.add_argument("-l", '--line_cross', action='store_true')
+    parser.add_argument("-a", '--count_all', action='store_true')
     parser.add_argument("-v", "--verbose", help="Verbosely list operations", action="store_true")
     
     args = parser.parse_args()
 
-    if isDirectory = os.
     raw_df = pd.read_csv(args.input_file)
     
-    df = prepreocess_df(raw_df, args.line_cross)
+    df = prepreocess_df(raw_df, args.count_all)
 
     time_list = generate_time_list(df)
     results = generate_analysis(time_list, raw_df, args.granularity)
