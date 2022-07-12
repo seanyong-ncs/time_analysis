@@ -18,7 +18,7 @@ This utility expects an input file of a `.csv` format that contains the followin
 
 ## How to use
 
-#### Install `requirements.txt`
+#### First Install `requirements.txt`
 
 `pip install requirements.txt`
 
