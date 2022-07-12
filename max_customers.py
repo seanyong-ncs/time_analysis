@@ -84,7 +84,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input_file", help="Input file path", required=True)
     parser.add_argument("-o", "--output_file", help="Output file path", default="")
-    parser.add_argument("-g", "--granularity", help="Set the time slice window in seconds", type=int, default=60)
+    parser.add_argument("-g", "--granularity", help="Set the time slice window in minutes", type=int, default=60)
     parser.add_argument("-a", '--count_all', action='store_true')
     parser.add_argument("-v", "--verbose", help="Verbosely list operations", action="store_true")
     
