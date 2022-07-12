@@ -26,8 +26,10 @@ This utility expects an input file of a `.csv` format that contains the followin
 
 `python max_customers.py -i [input_file_path] -o [output_file_path] -g [granularity] [-a] [-v] `
 
-`-i, --input_file` - The input file path - **REQUIRED**
-`-o, --output_file`  - The output file path, defaults to `input_file_name`_output.csv -  *optional*
-`-g, --granularity` - The time window period in minutes, defaults to `60` minutes - *optional*
-`-a, --count_all` - Count all occupants, not just those who crossed the line - *optional*
-`-v, --verbose` - Verbosely list out the operations - *optional*
+- `-i, --input_file` - The input file path - **REQUIRED**
+- `-o, --output_file`  - The output file path, defaults to `input_file_name`_output.csv -  *optional*
+- `-g, --granularity` - The time window period in minutes, defaults to `60` minutes - *optional*
+- `-a, --count_all` - Count all occupants, not just those who crossed the line - *optional*
+- `-v, --verbose` - Verbosely list out the operations - *optional*
+
+ 
