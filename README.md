@@ -1,5 +1,7 @@
 
-  # Occupancy Analysis 1.1
+  
+
+# Occupancy Analysis 1.2
 
 Occupancy Analysis is an NCS NIVA internal utility suite to generate reports based on **input time** and **output time**.
 
@@ -32,9 +34,9 @@ This utility expects an input file of a `.csv` format that contains the followin
 |Data Type|`int`|`dateTime`|``dateTime``|`int`
 
   #### 3. `[filename]_max_occupancy.py`
-||timeStart|timeEnd|customerStaffRatio|
+||timeStart|timeEnd|customerStaffRatio
 |-|-|-|-|-
-|Data Type|`dateTime`|`dateTime`|`int`|
+|Data Type|`dateTime`|`dateTime`|`int`
 
 ## How to use
 
@@ -62,9 +64,9 @@ This utility expects an input file of a `.csv` format that contains the followin
 This utility can generate heatmaps from different days in a folder automatically
 
 Example:
-```
+
 ![Screenshot](assets\Max_Occupants_Per_Timeslot_example.png)
-```
+
 
 ## Change Log
 
