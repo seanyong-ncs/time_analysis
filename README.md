@@ -1,20 +1,48 @@
-# Occupancy Analysis v1.0
 
-NCS NIVA Internal utility to generate a report showing the max number of people occupying an area and its first occuance time within defined periods given an **input time** and an **output time** 
+# Occupancy Analysis 1.2
 
-## File Format
+Occupancy Analysis is an NCS NIVA internal utility suite to generate reports based on **input time** and **output time**.
 
-This utility expects an input file of a `.csv` format that contains the following headers 
+Currently generates 3 different reports
+
+1. Max Occupancy Per Fixed Time Period
+2. Occupancy Over Time
+3. Customer Staff Ratio Per Fixed Time Period
+
+## Heat Map
+This utility can generate heatmaps from different days in a folder automatically
+
+Example:
+
+![Screenshot](assets/Max_Occupants_Per_Timeslot_example.png)
+
+## Reports and Analyses
+
+This utility expects an input file of a `.csv` format that contains the following headers
 
 #### Input File Format
+
 ||id|firstSeen|lastSeen|dwellTime|engagementTime|CrossLine
 |-|-|-|-|-|-|-
 |Data Type|`int`|`dateTime`|`dateTime`|`float`|`float`|`int`
 
-### Output File Format
+#### Output File Format
+
+#### 1. `[filename]_max_occupancy.py`
 ||timeStart|timeEnd|maxOccupants|firstOccuranceTime
 |-|-|-|-|-
 |Data Type|`dateTime`|`dateTime`|`int`|`dateTime`
+
+  
+#### 2. `[filename]_occupancy_time.py`
+||occupants|timeStart|timeEnd|duration [Seconds]
+|-|-|-|-|-
+|Data Type|`int`|`dateTime`|``dateTime``|`int`
+
+  #### 3. `[filename]_max_occupancy.py`
+||timeStart|timeEnd|customerStaffRatio
+|-|-|-|-
+|Data Type|`dateTime`|`dateTime`|`int`
 
 ## How to use
 
@@ -24,12 +52,32 @@ This utility expects an input file of a `.csv` format that contains the followin
 
 ### Commands
 
-`python max_occupancy.py -i [input_file_path] -o [output_file_path] -g [granularity] [-a] [-v] `
+`python main.py -i [input_file_path] -g [granularity] [-a] [-v] `
 
-- `-i, --input_file` - The input file path - **REQUIRED**
-- `-o, --output_file`  - The output file path, defaults to `input_file_name`_output.csv -  *optional*
-- `-g, --granularity` - The time window period in minutes, defaults to `60` minutes - *optional*
-- `-a, --count_all` - Count all occupants, not just those who crossed the line - *optional*
-- `-v, --verbose` - Verbosely list out the operations - *optional*
+#### Example usage:
+`python main.py -i data/ -g 60 `
 
- 
+#### Flags 
+-  `-i, --input_path` - The input path. Can be a single folder/directory.  *Heatmaps will only generate if path is a directory of  `.csv` files* - **REQUIRED**
+
+-  `-g, --granularity` - The time window period in minutes, defaults to `60` minutes - *optional*
+
+-  `-a, --count_all` - Count all occupants, not just those who crossed the line - *optional*
+
+-  `-v, --verbose` - Verbosely list out the operations - *optional*
+
+
+
+
+## Change Log
+
+  `v1.2`
+  - Added batch report generation feature
+  - Added heatmap generation feature
+  - Added customer-to-staff ratio report
+
+`v1.1`
+
+- Removed the output file flag option
+- Added the "Occupancy Over Time" report
+- Added a `_count_all` identifier to report names if `-a` flag is called
