@@ -54,21 +54,22 @@ def main():
     args = parser.parse_args()
     
     
-    if os.path.isdir(args.input_path):
+    if not os.path.isdir(args.input_path):
+        generate_occupancy_analysis(args.input_path, args)
+        print("Only 1 file specified. Skipping over heatmap generation")
+    else:
         results = [generate_occupancy_analysis(os.path.join(args.input_path, f), args) 
                     for f in os.listdir(args.input_path) if f.endswith(".csv")]
         # Transpose result array
         results = list(zip(*results)) 
-    else:
-        generate_occupancy_analysis(args.input_path, args)
     
-    # Create data visualiser object
-    vs = Visualiser()
+        # Create data visualiser object
+        vs = Visualiser()
 
-    mo_list = results[1]
-    csr_list = results[2]
-    vs.customer_staff_ratio_heatmap(csr_list)
-    vs.max_occupancy_heatmap(mo_list)
+        mo_list = results[1]
+        csr_list = results[2]
+        vs.customer_staff_ratio_heatmap(csr_list)
+        vs.max_occupancy_heatmap(mo_list)
 
     print("Done!")
     
