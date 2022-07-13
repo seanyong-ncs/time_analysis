@@ -1,14 +1,24 @@
+  
 
 # Occupancy Analysis 1.1
 
   
 
-Occupancy Analysis is an NCS NIVA internal utility suite to generate reports based on **input time** and **output time**. 
+  
+
+Occupancy Analysis is an NCS NIVA internal utility suite to generate reports based on **input time** and **output time**.
+
+  
 
 Currently generates 2 different reports
 
+  
+
 1. Max Occupancy Per Fixed Time Period
+
 2. Occupancy Over Time
+
+  
 
   
 
@@ -16,29 +26,59 @@ Currently generates 2 different reports
 
   
 
+  
+
 This utility expects an input file of a `.csv` format that contains the following headers
+
+  
 
   
 
 #### Input File Format
 
+  
+
 ||id|firstSeen|lastSeen|dwellTime|engagementTime|CrossLine
+
 |-|-|-|-|-|-|-
+
 |Data Type|`int`|`dateTime`|`dateTime`|`float`|`float`|`int`
+
+  
 
   
 
 ### Output File Format
 
+  
+
 #### 1. `[filename]_max_occupancy.py`
+
 ||timeStart|timeEnd|maxOccupants|firstOccuranceTime
+
 |-|-|-|-|-
+
 |Data Type|`dateTime`|`dateTime`|`int`|`dateTime`
 
+  
+
 #### 2. `[filename]_occupancy_time.py`
+
 ||occupants|timeStart|timeEnd|duration [Seconds]
+
 |-|-|-|-|-
+
 |Data Type|`int`|`dateTime`|``dateTime``|`int`
+
+#### 3. `[filename]_customer_staff_ratio.py`
+
+||occupants|timeStart|timeEnd|duration [Seconds]
+
+|-|-|-|-|-
+
+|Data Type|`int`|`dateTime`|``dateTime``|`int`
+
+  
 
   
 
@@ -46,7 +86,11 @@ This utility expects an input file of a `.csv` format that contains the followin
 
   
 
+  
+
 #### First Install `requirements.txt`
+
+  
 
   
 
@@ -54,7 +98,11 @@ This utility expects an input file of a `.csv` format that contains the followin
 
   
 
+  
+
 ### Commands
+
+  
 
   
 
@@ -62,19 +110,35 @@ This utility expects an input file of a `.csv` format that contains the followin
 
   
 
+  
+
 -  `-i, --input_file` - The input file path - **REQUIRED**
+
+  
 
 -  `-g, --granularity` - The time window period in minutes, defaults to `60` minutes - *optional*
 
+  
+
 -  `-a, --count_all` - Count all occupants, not just those who crossed the line - *optional*
+
+  
 
 -  `-v, --verbose` - Verbosely list out the operations - *optional*
 
   
 
+  
+
 ## Change Log
 
+  
+
 `v1.1`
+
 - Removed the output file flag option
-- Added the  "Occupancy Over Time" report 
+
+- Added the "Occupancy Over Time" report
+
 - Added a `_count_all` identifier to report names if `-a` flag is called
+
