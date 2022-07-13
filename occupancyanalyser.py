@@ -85,7 +85,7 @@ class OccupancyAnalyser:
         return results
 
     def customer_staff_ratio_analysis(self, staff = 3):
-        df = self.max_occupancy_window_analysis()
+        df = self.max_occupancy_window_analysis().copy(deep=True)
         df['customerStaffRatio'] = df['maxOccupants'].astype(float).div(staff).round(2)
         df = df.drop(columns=["firstOccuranceTime", 'maxOccupants'])
         return df
