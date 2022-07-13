@@ -5,10 +5,18 @@
 
 Occupancy Analysis is an NCS NIVA internal utility suite to generate reports based on **input time** and **output time**.
 
-Currently generates 2 different reports
+Currently generates 3 different reports
 
 1. Max Occupancy Per Fixed Time Period
 2. Occupancy Over Time
+3. Customer Staff Ratio Per Fixed Time Period
+
+## Heat Map
+This utility can generate heatmaps from different days in a folder automatically
+
+Example:
+
+![Screenshot](assets/Max_Occupants_Per_Timeslot_example.png)
 
 ## Reports and Analyses
 
@@ -37,13 +45,6 @@ This utility expects an input file of a `.csv` format that contains the followin
 ||timeStart|timeEnd|customerStaffRatio
 |-|-|-|-
 |Data Type|`dateTime`|`dateTime`|`int`
-
-## Heat Map
-This utility can generate heatmaps from different days in a folder automatically
-
-Example:
-
-![Screenshot](assets/Max_Occupants_Per_Timeslot_example.png)
 
 ## How to use
 
