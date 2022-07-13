@@ -35,8 +35,15 @@ This utility expects an input file of a `.csv` format that contains the followin
 
   #### 3. `[filename]_max_occupancy.py`
 ||timeStart|timeEnd|customerStaffRatio
-|-|-|-|-|-
+|-|-|-|-
 |Data Type|`dateTime`|`dateTime`|`int`
+
+## Heat Map
+This utility can generate heatmaps from different days in a folder automatically
+
+Example:
+
+![Screenshot](assets/Max_Occupants_Per_Timeslot_example.png)
 
 ## How to use
 
@@ -60,12 +67,7 @@ This utility expects an input file of a `.csv` format that contains the followin
 
 -  `-v, --verbose` - Verbosely list out the operations - *optional*
 
-## Heat Map
-This utility can generate heatmaps from different days in a folder automatically
 
-Example:
-
-![Screenshot](assets\Max_Occupants_Per_Timeslot_example.png)
 
 
 ## Change Log
