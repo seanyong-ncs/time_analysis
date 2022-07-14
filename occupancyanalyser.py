@@ -1,3 +1,4 @@
+from cmath import isnan
 import pandas as pd
 import numpy as np
 from datetime import timedelta
@@ -13,8 +14,8 @@ class OccupancyAnalyser:
         self.count_all = count_all
         self.granularity_s = granularity * 60 # Convert from minutes to seconds
 
-        # MCWA results are saved as a variable for analysis built on top
-        self.mcwa = None # max_occupancy_window_analysis
+        # MOWA results are saved as a variable for analysis built on top
+        self.mowa = None # max_occupancy_window_analysis
 
         # Convert firstSeen to dateTime and set initial_dt to start of day
         self.initial_dt = pd.to_datetime(df["firstSeen"]).iloc[0].replace(hour=0, minute=0, second=0, microsecond=0)
@@ -28,9 +29,9 @@ class OccupancyAnalyser:
     # Returns a pandas dataframe containing the results of max occupancy per window analysis
     def max_occupancy_window_analysis(self):
 
-        if self.mcwa is None:
+        if self.mowa is None:
             # Blank dataframe to hold the results
-            results = pd.DataFrame(columns=["timeStart", "timeEnd", "maxOccupants", "firstOccuranceTime"])
+            results = pd.DataFrame(columns=["timeStart", "timeEnd", "maxOccupants", "firstOccuranceTime", "interval"])
 
             for i in range(int(self.time_list.size/self.granularity_s)):
                 # Define slice time steps and indices
@@ -40,23 +41,26 @@ class OccupancyAnalyser:
 
                 max_occupants = int(np.amax(time_slice))
                 max_occupants_ts = np.where(self.time_list == np.amax(time_slice))[0] if max_occupants > 0 else np.NaN
+                max_occupants_interval = 0
 
                 # Skip occurance search if no detection in time slice
                 if ~np.isnan(max_occupants_ts).all():
                     max_occupants_ts = max_occupants_ts[(max_occupants_ts > ts_start)]
+                    max_occupants_interval = max_occupants_ts.size
 
                 # Convert relative timestep to dateTime object
                 start_dt = self.tsdt(ts_start)
                 end_dt = self.tsdt(ts_stop)
                 time_of_occurance = self.tsdt(max_occupants_ts[0].item()) if max_occupants > 0 else np.NaN
                 
+
                 # Format a dataframe with one row to append to the end of the temp results frame
-                newRow = {"timeStart": [start_dt], "timeEnd": [end_dt], "maxOccupants": [max_occupants], "firstOccuranceTime": [time_of_occurance]}
+                newRow = {"timeStart": [start_dt], "timeEnd": [end_dt], "maxOccupants": [max_occupants], "firstOccuranceTime": [time_of_occurance], "interval": [max_occupants_interval]}
                 results = pd.concat([results, pd.DataFrame(newRow)], ignore_index=True)
 
-            self.mcwa = results
+            self.mowa = results
 
-        return self.mcwa
+        return self.mowa
 
     def occupancy_time_analysis(self):
         # Initial case
