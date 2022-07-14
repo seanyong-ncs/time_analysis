@@ -94,6 +94,31 @@ class OccupancyAnalyser:
         df = df.drop(columns=["firstOccuranceTime", 'maxOccupants'])
         return df
 
+    def customer_staff_ratio_treshold_analysis(self, staff = 3, csr_threshold = 3):
+        # Blank dataframe to hold the results
+        results = pd.DataFrame(columns=["timeStart", "timeEnd", "csrThreshold", "interval"])
+        for i in range(int(self.time_list.size/self.granularity_s)):
+            # Define slice time steps and indices
+            ts_start = i*self.granularity_s # ts stands for timeStep
+            ts_stop = (i+1)*self.granularity_s-1 if (i+1)*self.granularity_s < self.time_list.size else self.time_list.size-1
+            time_slice = self.time_list[ts_start:ts_stop]
+
+            treshold_ts = time_slice[time_slice > csr_threshold]
+            treshold_interval = 0
+
+            # Skip occurance search if no detection in time slice
+            if ~np.isnan(treshold_ts).all():
+                treshold_interval = treshold_ts.size
+
+            # Convert relative timestep to dateTime object
+            start_dt = self.tsdt(ts_start)
+            end_dt = self.tsdt(ts_stop)
+
+            # Format a dataframe with one row to append to the end of the temp results frame
+            newRow = {"timeStart": [start_dt], "timeEnd": [end_dt], "csrThreshold": [csr_threshold], "interval": [treshold_interval]}
+            results = pd.concat([results, pd.DataFrame(newRow)], ignore_index=True)
+        
+        return results
 
     # ------------Support functions-------------
 

@@ -33,11 +33,13 @@ def generate_occupancy_analysis(df_path, args):
     occupancy_time_results = oa.occupancy_time_analysis()
     max_occupancy_results = oa.max_occupancy_window_analysis()
     customer_staff_ratio_results = oa.customer_staff_ratio_analysis()
+    csr_treshold_results = oa.customer_staff_ratio_treshold_analysis()
 
     # Save analyses to csv
     save_analysis(occupancy_time_results, save_dir, df_path, "occupancy_time", args.count_all)
     save_analysis(max_occupancy_results, save_dir, df_path, "max_occupancy", args.count_all)
     save_analysis(customer_staff_ratio_results, save_dir, df_path, "customer_staff_ratio", args.count_all)
+    save_analysis(csr_treshold_results, save_dir, df_path, "customer_staff_ratio_threshold", args.count_all)
 
     # Print analyses output if verbose flag is enabled
     if (args.verbose):
