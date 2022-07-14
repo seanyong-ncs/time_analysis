@@ -4,6 +4,8 @@ from occupancyanalyser import OccupancyAnalyser
 from visualiser import Visualiser
 import os
 
+import numpy as np
+
 
 def save_analysis(results, save_dir, input_file, identifier, count_all):
     count_all_flag = "_count_all" if count_all else ""
@@ -52,14 +54,13 @@ def main():
     parser.add_argument("-a", '--count_all', action='store_true')
     parser.add_argument("-v", "--verbose", help="Verbosely list operations", action="store_true")
     args = parser.parse_args()
-    
-    
+
     if not os.path.isdir(args.input_path):
         generate_occupancy_analysis(args.input_path, args)
         print("Only 1 file specified. Skipping over heatmap generation")
     else:
         results = [generate_occupancy_analysis(os.path.join(args.input_path, f), args) 
-                    for f in os.listdir(args.input_path) if f.endswith(".csv")]
+                    for f in sorted(os.listdir(args.input_path)) if f.endswith(".csv")]
         # Transpose result array
         results = list(zip(*results)) 
     

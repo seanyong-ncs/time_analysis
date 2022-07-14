@@ -1,2 +1,4 @@
 output/*
 visualisations/*
+*.pyc
+__pycache__/*
