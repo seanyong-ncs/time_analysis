@@ -33,7 +33,7 @@ def generate_occupancy_analysis(df_path, args):
     occupancy_time_results = oa.occupancy_time_analysis()
     max_occupancy_results = oa.max_occupancy_window_analysis()
     customer_staff_ratio_results = oa.customer_staff_ratio_analysis()
-    csr_treshold_results = oa.customer_staff_ratio_treshold_analysis()
+    csr_treshold_results = oa.customer_staff_ratio_treshold_analysis(csr_threshold=args.csr_treshold)
 
     # Save analyses to csv
     save_analysis(occupancy_time_results, save_dir, df_path, "occupancy_time", args.count_all)
@@ -46,19 +46,20 @@ def generate_occupancy_analysis(df_path, args):
         print(occupancy_time_results)
         print(max_occupancy_results)
 
-    return occupancy_time_results, max_occupancy_results, customer_staff_ratio_results
+    return occupancy_time_results, max_occupancy_results, customer_staff_ratio_results, csr_treshold_results
 
 def main():
     # Build argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input_path", help="Input file/folder path", required=True)
     parser.add_argument("-g", "--granularity", help="Set the time slice window in minutes", type=int, default=60)
+    parser.add_argument("-ct", "--csr_treshold", help="Treshold for the max CSR interval report", type=float, default=3)
     parser.add_argument("-a", '--count_all', action='store_true')
     parser.add_argument("-v", "--verbose", help="Verbosely list operations", action="store_true")
     args = parser.parse_args()
 
     if not os.path.isdir(args.input_path):
-        generate_occupancy_analysis(args.input_path, args)
+        results = [generate_occupancy_analysis(args.input_path, args)]
         print("Only 1 file specified. Skipping over heatmap generation")
     else:
         results = [generate_occupancy_analysis(os.path.join(args.input_path, f), args) 
@@ -71,8 +72,10 @@ def main():
 
         mo_list = results[1]
         csr_list = results[2]
+        csrt_list = results[3]
         vs.customer_staff_ratio_heatmap(csr_list)
         vs.max_occupancy_heatmap(mo_list)
+        vs.customer_staff_ratio_treshold_heatmap(csrt_list)
 
     print("Done!")
     

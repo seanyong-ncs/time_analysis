@@ -29,38 +29,25 @@ class OccupancyAnalyser:
     # Returns a pandas dataframe containing the results of max occupancy per window analysis
     def max_occupancy_window_analysis(self):
 
-        if self.mowa is None:
-            # Blank dataframe to hold the results
-            results = pd.DataFrame(columns=["timeStart", "timeEnd", "maxOccupants", "firstOccuranceTime", "interval"])
+        # Blank dataframe to hold the results
+        results = pd.DataFrame(columns=["timeStart", "timeEnd", "maxOccupants", "firstOccuranceTime", "interval"])
 
-            for i in range(int(self.time_list.size/self.granularity_s)):
-                # Define slice time steps and indices
-                ts_start = i*self.granularity_s # ts stands for timeStep
-                ts_stop = (i+1)*self.granularity_s-1 if (i+1)*self.granularity_s < self.time_list.size else self.time_list.size-1
-                time_slice = self.time_list[ts_start:ts_stop]
+        for i, time_slice in enumerate(np.split(self.time_list, int(self.time_list.size/self.granularity_s))):
 
-                max_occupants = int(np.amax(time_slice))
-                max_occupants_ts = np.where(self.time_list == np.amax(time_slice))[0] if max_occupants > 0 else np.NaN
-                max_occupants_interval = 0
+            max_occupants = int(np.amax(time_slice))
+            max_occupants_ts = np.where(self.time_list == max_occupants)[0]
+            NaNSet = lambda x: x if max_occupants > 0 else np.NaN
+            ts = lambda x: self.tsdt((i + x)*self.granularity_s)
+            
+            # Format a dataframe with one row to append to the end of the temp results frame
+            newRow = {"timeStart": [ts(0)], "timeEnd": [ts(1)], 
+                      "maxOccupants": [max_occupants], "firstOccuranceTime": [NaNSet(self.tsdt(max_occupants_ts[0].item()))], 
+                      "interval": [NaNSet(max_occupants_ts.size)]}
 
-                # Skip occurance search if no detection in time slice
-                if ~np.isnan(max_occupants_ts).all():
-                    max_occupants_ts = max_occupants_ts[(max_occupants_ts > ts_start)]
-                    max_occupants_interval = max_occupants_ts.size
+            results = pd.concat([results, pd.DataFrame(newRow)], ignore_index=True)
 
-                # Convert relative timestep to dateTime object
-                start_dt = self.tsdt(ts_start)
-                end_dt = self.tsdt(ts_stop)
-                time_of_occurance = self.tsdt(max_occupants_ts[0].item()) if max_occupants > 0 else np.NaN
-                
-
-                # Format a dataframe with one row to append to the end of the temp results frame
-                newRow = {"timeStart": [start_dt], "timeEnd": [end_dt], "maxOccupants": [max_occupants], "firstOccuranceTime": [time_of_occurance], "interval": [max_occupants_interval]}
-                results = pd.concat([results, pd.DataFrame(newRow)], ignore_index=True)
-
-            self.mowa = results
-
-        return self.mowa
+        return results
+   
 
     def occupancy_time_analysis(self):
         # Initial case
@@ -97,25 +84,16 @@ class OccupancyAnalyser:
     def customer_staff_ratio_treshold_analysis(self, staff = 3, csr_threshold = 3):
         # Blank dataframe to hold the results
         results = pd.DataFrame(columns=["timeStart", "timeEnd", "csrThreshold", "interval"])
-        for i in range(int(self.time_list.size/self.granularity_s)):
-            # Define slice time steps and indices
-            ts_start = i*self.granularity_s # ts stands for timeStep
-            ts_stop = (i+1)*self.granularity_s-1 if (i+1)*self.granularity_s < self.time_list.size else self.time_list.size-1
-            time_slice = self.time_list[ts_start:ts_stop]
+        for i, time_slice in enumerate(np.split(self.time_list, int(self.time_list.size/self.granularity_s))):
 
-            treshold_ts = time_slice[time_slice > csr_threshold]
-            treshold_interval = 0
+            # Time step to dateTime at index x
+            ts = lambda x: self.tsdt((i + x)*self.granularity_s)
 
-            # Skip occurance search if no detection in time slice
-            if ~np.isnan(treshold_ts).all():
-                treshold_interval = treshold_ts.size
-
-            # Convert relative timestep to dateTime object
-            start_dt = self.tsdt(ts_start)
-            end_dt = self.tsdt(ts_stop)
+            # Count the number of seconds where the CSR threshold was exceeded
+            treshold_interval = time_slice[(time_slice / staff) >= csr_threshold].size
 
             # Format a dataframe with one row to append to the end of the temp results frame
-            newRow = {"timeStart": [start_dt], "timeEnd": [end_dt], "csrThreshold": [csr_threshold], "interval": [treshold_interval]}
+            newRow = {"timeStart": [ts(0)], "timeEnd": [ts(1)], "csrThreshold": [csr_threshold], "interval": [treshold_interval]}
             results = pd.concat([results, pd.DataFrame(newRow)], ignore_index=True)
         
         return results
